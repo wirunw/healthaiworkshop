@@ -477,8 +477,6 @@ function applyFilter(){
   CARDS.forEach(c=>{ const el=document.getElementById('k'+c.n);
     const ok=(CAT==='ALL'||(CAT==='SEL'?SEL.includes(c.n):CAT==='PRESET'?groupOf(c.n)>=0:c.cat===CAT))&&(!RK||c.risk===RK)&&(!q||(c.title+' '+c.use+' '+c.aud+' '+c.tags.join(' ')+' '+c.ctx).toLowerCase().includes(q));
     el.hidden=!ok; if(ok) n++; });
-  if(CAT==='PRESET'){ const lib=document.getElementById('lib'); PRESET.forEach(p=>lib.appendChild(document.getElementById('k'+p[0]))); }
-  else { const lib=document.getElementById('lib'); CARDS.forEach(c=>lib.appendChild(document.getElementById('k'+c.n))); }
   document.getElementById('count').textContent='แสดง '+n+' จาก '+CARDS.length+' การ์ด · โต๊ะเลือกไว้ '+SEL.length+' การ์ด';
 }
 document.getElementById('lib').innerHTML=CARDS.map(cardHtml).join('');
