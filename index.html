@@ -292,8 +292,9 @@ button.pick[aria-pressed="true"]{background:var(--honey);color:#2B1D05}
       <li><b class="m">15 นาที</b><span>เขียน prompt ฉบับของโต๊ะ เลือกงานแรกที่จะเริ่ม และแผน 30 วัน</span></li>
       <li><b class="m">20 นาที</b><span>ดาวน์โหลดสรุปเป็น Word แล้วนำเสนอโต๊ะละ 3 นาที</span></li>
     </ol>
-    <details class="mc" id="preset-box"><summary>ชุดแนะนำ 12 กลุ่ม (สำหรับผู้สอนแจกการ์ด)</summary>
-      <p class="hint" style="margin:0 0 8px">กลุ่มละ 1 การ์ดหลัก คนละหมวด มีครบ 3 สีไฟ ถ้ามี 8 กลุ่ม ใช้กลุ่ม 1–8 · การ์ดสำรองใช้เมื่อสมาชิกไม่ตรงงาน หรือทำการ์ดหลักเสร็จเร็ว · ให้กลุ่มที่ได้การ์ด 🔴 นำเสนอเป็นกลุ่มสุดท้าย</p>
+    <details class="mc" id="preset-box"><summary>ชุดแนะนำสำหรับผู้สอนแจกการ์ด (8 หรือ 12 กลุ่ม)</summary>
+      <div style="max-width:260px;margin:4px 0 8px"><label class="fl" for="ps-a">จำนวนกลุ่ม</label><select id="ps-a" class="psize"><option value="8">8 กลุ่ม</option><option value="12">12 กลุ่ม</option></select></div>
+      <p class="hint" style="margin:0 0 8px">กลุ่มละ 1 การ์ดหลัก คนละหมวด มีครบ 3 สีไฟ เรียงเลขกลุ่มตามเลขการ์ด นำเสนอตามลำดับกลุ่มได้เลย การ์ด 🔴 จะเป็นกลุ่มสุดท้ายพอดี · การ์ดสำรองใช้เมื่อสมาชิกไม่ตรงงาน หรือทำการ์ดหลักเสร็จเร็ว</p>
       <div class="tbl-wrap" id="preset-table"></div>
     </details>
     <p class="hint">ไม่ต้องรู้เรื่องเทคนิค สิ่งที่โต๊ะรู้ดีกว่า AI คือ งานจริงติดตรงไหน ข้อมูลอยู่ที่ไหน และใครต้องเป็นคนตรวจ</p>
@@ -346,8 +347,9 @@ button.pick[aria-pressed="true"]{background:var(--honey);color:#2B1D05}
   <p class="lead">คุยทีละการ์ด เขียนสั้น ๆ เป็นข้อ ๆ ก็พอ ไม่ต้องสวย</p>
   <div class="box" style="margin-bottom:12px">
     <div class="setup">
-      <div><label class="fl" for="pg-num">ใช้ชุดแนะนำ 12 กลุ่ม · โต๊ะของเราคือกลุ่ม</label><select id="pg-num"></select></div>
-      <div style="display:flex;align-items:flex-end"><label class="check" style="margin:0"><input type="checkbox" id="pg-backup"> รวมการ์ดสำรองด้วย</label></div>
+      <div><label class="fl" for="ps-b">ชุดแนะนำ</label><select id="ps-b" class="psize"><option value="8">8 กลุ่ม</option><option value="12">12 กลุ่ม</option></select></div>
+      <div><label class="fl" for="pg-num">โต๊ะของเราคือกลุ่ม</label><select id="pg-num"></select></div>
+      <div class="full"><label class="check" style="margin:0"><input type="checkbox" id="pg-backup"> รวมการ์ดสำรองด้วย</label></div>
     </div>
     <div class="actions" style="margin-top:8px"><button class="copy" type="button" id="pg-go">ใส่การ์ดของกลุ่มนี้ลงกระดาน</button></div>
   </div>
@@ -437,7 +439,7 @@ function cardHtml(c){
   const on=SEL.includes(c.n);
   return '<article class="kc'+(on?' sel':'')+'" id="k'+c.n+'" data-cat="'+esc(c.cat)+'" data-risk="'+c.risk+'">'+
    '<div class="kc-h"><div class="n">'+c.n+'</div><div><div class="k">'+esc(c.cat)+(c.hero?' · HERO':'')+'</div><h3>'+esc(c.title)+'</h3><p>'+esc(c.use)+'</p>'+
-   '<div class="chips">'+(groupOf(c.n)>=0?'<span class="chip gchip">ชุดแนะนำ · กลุ่ม '+(groupOf(c.n)+1)+'</span>':'')+'<span class="chip r-'+c.risk+'">'+RISK[c.risk][0]+'</span><span class="chip">'+esc(c.aud)+'</span>'+c.tags.map(t=>'<span class="chip">'+esc(t)+'</span>').join('')+'</div></div>'+
+   '<div class="chips">'+'<span class="chip r-'+c.risk+'">'+RISK[c.risk][0]+'</span><span class="chip">'+esc(c.aud)+'</span>'+c.tags.map(t=>'<span class="chip">'+esc(t)+'</span>').join('')+'</div></div>'+
    '<button class="pick" type="button" data-pick="'+c.n+'" aria-pressed="'+on+'">'+(on?'เลือกแล้ว ✓':'เลือกมาระดมสมอง')+'</button></div>'+
    '<details data-open="'+c.n+'"><summary>เปิด Case Context + Prompt</summary><div class="in-b"></div></details></article>';
 }
@@ -450,27 +452,31 @@ function cardInner(c){
    '<div class="adapt"><b>คำถามชวนคิดสำหรับโต๊ะ</b><ul>'+c.adapt.map(r=>'<li>'+esc(r)+'</li>').join('')+'</ul></div></div>';
 }
 // ---------- ชุดแนะนำ 12 กลุ่ม: [การ์ดหลัก, การ์ดสำรอง, เหตุผล] ----------
-const PRESET=[
- ['01','04','ทุกหน่วยงานประชุม เห็นผลเร็ว เหมาะนำเสนอเป็นกลุ่มแรก'],
- ['27','32','ปัญหารอคอย OPD ที่ รพ.รัฐเกือบทุกแห่งเจอ ข้อมูลมีจุดขาดให้ถกกัน'],
- ['13','15','AI คำนวณได้ แต่คนตัดสินเรื่องเงินบำรุงและยาจำเป็น'],
- ['31','05','งานประสานหลายวิชาชีพ ในเคสมีจุดเสี่ยงซ่อนอยู่'],
- ['33','34','กำลังคนและภาระงาน ทุกโต๊ะมีความเห็น'],
- ['39','41','ให้งานสนับสนุนมีพื้นที่ ไม่ใช่มีแต่งานคลินิก'],
- ['46','45','การเงินการคลังตามสิทธิที่ผู้บริหารสนใจ'],
- ['48','08','🔴 ใช้คุยว่าทำไม prompt อย่างเดียวไม่พอ ให้นำเสนอเป็นกลุ่มสุดท้าย'],
- ['09','10','อ่านตารางข้อมูลให้แยกข้อเท็จจริงกับการตีความ ใช้ได้ทุกหน่วย'],
- ['17','19','พลังงานและอาคาร ประหยัดได้จริง วัดผลง่าย'],
- ['43','35','สุขภาวะและความเป็นธรรมต่อบุคลากร ต้องคุยเรื่องข้อมูลส่วนบุคคล'],
- ['30','28','Service Plan กับตัวชี้วัดที่ผู้บริหารใช้ติดตาม']
-];
-const groupOf = n => PRESET.findIndex(p=>p[0]===n);
+const PRESET_ALL={
+ '01':['04','ทุกหน่วยงานประชุม เห็นผลเร็ว เหมาะนำเสนอเป็นกลุ่มแรก'],
+ '09':['10','อ่านตารางข้อมูลให้แยกข้อเท็จจริงกับการตีความ ใช้ได้ทุกหน่วย'],
+ '13':['15','AI คำนวณได้ แต่คนตัดสินเรื่องเงินบำรุงและยาจำเป็น'],
+ '17':['19','พลังงานและอาคาร ประหยัดได้จริง วัดผลง่าย'],
+ '27':['32','ปัญหารอคอย OPD ที่ รพ.รัฐเกือบทุกแห่งเจอ ข้อมูลมีจุดขาดให้ถกกัน'],
+ '30':['28','Service Plan กับตัวชี้วัดที่ผู้บริหารใช้ติดตาม'],
+ '31':['05','งานประสานหลายวิชาชีพ ในเคสมีจุดเสี่ยงซ่อนอยู่'],
+ '33':['34','กำลังคนและภาระงาน ทุกโต๊ะมีความเห็น'],
+ '39':['41','ให้งานสนับสนุนมีพื้นที่ ไม่ใช่มีแต่งานคลินิก'],
+ '43':['35','สุขภาวะและความเป็นธรรมต่อบุคลากร ต้องคุยเรื่องข้อมูลส่วนบุคคล'],
+ '46':['45','การเงินการคลังตามสิทธิที่ผู้บริหารสนใจ'],
+ '48':['08','🔴 ใช้คุยว่าทำไม prompt อย่างเดียวไม่พอ เป็นกลุ่มสุดท้ายพอดี']
+};
+// เรียงตามเลขการ์ด กลุ่ม 1 = การ์ดเลขน้อยสุด
+const PRESETS={12:Object.keys(PRESET_ALL).sort(), 8:['01','13','27','31','33','39','46','48']};
+let PSIZE=+(store.get('psize')||12); if(!PRESETS[PSIZE]) PSIZE=12;
+const preset=()=>PRESETS[PSIZE].map(n=>[n,PRESET_ALL[n][0],PRESET_ALL[n][1]]);
+const groupOf = n => PRESETS[PSIZE].indexOf(n);
 let CAT='ALL', RK='';
 function renderFilters(){
   document.getElementById('filters').innerHTML=[['ALL','ทั้งหมด']].concat(CATS.map(c=>[c,c])).map(x=>'<button type="button" data-cat="'+esc(x[0])+'" aria-pressed="'+(CAT===x[0])+'">'+esc(x[1])+'</button>').join('')+
    Object.keys(RISK).map(r=>'<button type="button" data-rk="'+r+'" aria-pressed="'+(RK===r)+'">'+RISK[r][0]+'</button>').join('')+
    '<button type="button" data-cat="SEL" aria-pressed="'+(CAT==='SEL')+'">เฉพาะที่โต๊ะเลือก</button>'+
-   '<button type="button" data-cat="PRESET" aria-pressed="'+(CAT==='PRESET')+'">ชุดแนะนำ 12 กลุ่ม</button>';
+   '<button type="button" data-cat="PRESET" aria-pressed="'+(CAT==='PRESET')+'">ชุดแนะนำ '+PSIZE+' กลุ่ม</button>';
 }
 function applyFilter(){
   const q=document.getElementById('search').value.toLowerCase().trim(); let n=0;
@@ -511,14 +517,25 @@ function togglePick(n){
 }
 
 // ---------- ชุดแนะนำ: ตาราง + ปุ่มใส่การ์ด ----------
-document.getElementById('preset-table').innerHTML='<table class="pt"><tr><th>กลุ่ม</th><th>การ์ดหลัก</th><th>เหตุผล</th><th>การ์ดสำรอง</th></tr>'+PRESET.map((p,i)=>{const c=byN[p[0]],s=byN[p[1]];
-  return '<tr><td>'+(i+1)+'</td><td><a href="#k'+c.n+'">'+c.n+' '+esc(c.title)+'</a> '+RISK[c.risk][0].split(' ')[0]+'</td><td>'+esc(p[2])+'</td><td><a href="#k'+s.n+'">'+s.n+' '+esc(s.title)+'</a></td></tr>';}).join('')+'</table>';
+function renderPreset(){
+  document.getElementById('preset-table').innerHTML='<table class="pt"><tr><th>กลุ่ม</th><th>การ์ดหลัก</th><th>เหตุผล</th><th>การ์ดสำรอง</th></tr>'+preset().map((p,i)=>{const c=byN[p[0]],s=byN[p[1]];
+    return '<tr><td>'+(i+1)+'</td><td><a href="#k'+c.n+'">'+c.n+' '+esc(c.title)+'</a> '+RISK[c.risk][0].split(' ')[0]+'</td><td>'+esc(p[2])+'</td><td><a href="#k'+s.n+'">'+s.n+' '+esc(s.title)+'</a></td></tr>';}).join('')+'</table>';
+  const pg=document.getElementById('pg-num'), keep=pg.value;
+  pg.innerHTML=preset().map((p,i)=>'<option value="'+i+'">กลุ่ม '+(i+1)+' · '+p[0]+' '+esc(byN[p[0]].title)+'</option>').join('');
+  if(keep && +keep<PSIZE) pg.value=keep;
+  document.querySelectorAll('.psize').forEach(el=>el.value=String(PSIZE));
+  document.querySelectorAll('.pg-label').forEach(el=>el.textContent=PSIZE);
+  // ป้ายกลุ่มบนการ์ด
+  CARDS.forEach(c=>{ const ch=document.querySelector('#k'+c.n+' .chips'); if(!ch) return; let g=ch.querySelector('.gchip'); const i=groupOf(c.n);
+    if(i<0){ if(g) g.remove(); return; } if(!g){ g=document.createElement('span'); g.className='chip gchip'; ch.prepend(g); } g.textContent='ชุดแนะนำ '+PSIZE+' กลุ่ม · กลุ่ม '+(i+1); });
+  renderFilters(); applyFilter();
+}
+document.addEventListener('change',e=>{ if(e.target.classList && e.target.classList.contains('psize')){ PSIZE=+e.target.value; store.set('psize',PSIZE); renderPreset(); } });
 const pgNum=document.getElementById('pg-num');
-pgNum.innerHTML=PRESET.map((p,i)=>'<option value="'+i+'">กลุ่ม '+(i+1)+' · '+p[0]+' '+esc(byN[p[0]].title)+'</option>').join('');
-{ const s=store.get('pg-num'); if(s!==null) pgNum.value=s; }
+{ const s=store.get('pg-num'); renderPreset(); if(s!==null && +s<PSIZE) pgNum.value=s; }
 pgNum.addEventListener('change',()=>store.set('pg-num',pgNum.value));
 document.getElementById('pg-go').addEventListener('click',()=>{
-  const i=+pgNum.value, p=PRESET[i], want=[p[0]].concat(document.getElementById('pg-backup').checked?[p[1]]:[]);
+  const i=+pgNum.value, p=preset()[i], want=[p[0]].concat(document.getElementById('pg-backup').checked?[p[1]]:[]);
   want.forEach(n=>{ if(!SEL.includes(n)) togglePick(n); });
   const t=document.getElementById('m-table'); if(!t.value.trim()){ t.value='กลุ่ม '+(i+1); store.set('m-table',t.value); showMaster(); }
   progress(); say('ใส่การ์ดของกลุ่ม '+(i+1)+' แล้ว'); document.getElementById('cvs').scrollIntoView({behavior:'smooth',block:'start'});
